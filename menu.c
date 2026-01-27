@@ -88,12 +88,12 @@ void wyswietl_liste(Bohater *glowa) {
 }
 void wyszukaj_bohaterow(Bohater *HEAD) {
     if (HEAD == NULL) {
-        printf("\n[INFO] Lista jest pusta, nie ma kogo szukac.\n");
+        printf("Lista jest pusta, nie ma kogo szukac.\n");
         return;
     }
 
     int opcja;
-    printf("\nWYSZUKIWANIE\n");
+    printf("WYSZUKIWANIE\n");
     printf("1. Szukaj po fragmencie imienia\n");
     printf("2. Szukaj po klasie\n");
     printf("Wybierz opcje: ");
@@ -165,7 +165,7 @@ void usun_bohatera(Bohater **glowa) {
                 poprzedni->nastepny_bohater = obecny->nastepny_bohater; 
             }
             free(obecny); 
-            printf("\n[SUKCES] Bohater '%s' zostal usuniety z rejestru.\n", imie_do_usuniecia);
+            printf("\n Bohater '%s' zostal usuniety z rejestru.\n", imie_do_usuniecia);
             return;
         }
         poprzedni = obecny;
@@ -174,14 +174,14 @@ void usun_bohatera(Bohater **glowa) {
 
     printf("Nie znaleziono bohatera o imieniu '%s'.\n", imie_do_usuniecia);
 }
-void edytuj_bohatera(Bohater *glowa) {
+void modyfikuj_bohatera(Bohater *glowa) {
     if (glowa == NULL) {
         printf("Lista jest pusta.\n");
         return;
     }
 
     char szukane_imie[100];
-    printf("EDYCJA DANYCH BOHATERA");
+    printf("EDYCJA DANYCH BOHATERA\n");
     printf("Podaj imie bohatera do edycji: ");
     scanf(" %[^\n]", szukane_imie);
     Bohater *obecny = glowa;
@@ -209,7 +209,7 @@ void edytuj_bohatera(Bohater *glowa) {
                     
                     if (nowy_status >= 0 && nowy_status <= 4) {
                         obecny->status = (Status)nowy_status;
-                        printf("[SUKCES] Status zmieniony na: %s\n", obecnystatus[nowy_status]);
+                        printf("Status zmieniony na: %s\n", obecnystatus[nowy_status]);
                     } else {
                         printf("Niepoprawny numer statusu.\n");
                     }
@@ -269,9 +269,48 @@ void zapisz_baze(Bohater *glowa) {
     fclose(plik);
     printf("Stan gildii zostal zapisany w pliku 'baza_gildii.txt'.\n");
 }
+void wczytaj_baze(Bohater **glowa) {
+    FILE *plik = fopen("baza_gildii.txt", "r");
+    
+    if (plik == NULL) {
+        printf("Brak pliku zapisu. Tworze nowa, czysta baze.\n");
+        return;
+    }
+    char tempImie[100];
+    int tempRasa, tempKlasa, tempExp, tempRep, tempStatus;
+    while (fscanf(plik, " %[^\n]", tempImie) != EOF) { 
+        fscanf(plik, "%d", &tempRasa);
+        fscanf(plik, "%d", &tempKlasa);
+        fscanf(plik, "%d", &tempExp);
+        fscanf(plik, "%d", &tempRep);
+        fscanf(plik, "%d", &tempStatus);
+        Bohater *nowy = (Bohater*)malloc(sizeof(Bohater));
+        strcpy(nowy->Unikalneimie, tempImie); 
+        nowy->rasa = (Rasa)tempRasa;
+        nowy->klasa = (Klasa)tempKlasa;
+        nowy->doswiadczenie = tempExp;
+        nowy->reputacja = tempRep;
+        nowy->status = (Status)tempStatus;
+        nowy->nastepny_bohater = NULL;
+        dodaj_bohatera(glowa, nowy);
+    }
+
+    fclose(plik);
+    printf("[SYSTEM] Wczytano dane z pliku.\n");
+}
+void zwolnij_pamiec(Bohater *glowa) {
+    Bohater *temp;
+    while (glowa != NULL) {
+        temp = glowa;
+        glowa = glowa->nastepny_bohater;
+        free(temp);
+    }
+    printf("Pamiec zostala wyczyszczona.\n");
+}
 int main()
 {
     Bohater *HEAD = NULL;
+    wczytaj_baze(&HEAD);
     int wybor;
     
     do{
@@ -281,6 +320,7 @@ int main()
         printf("3. Wyszukaj bohatera\n");
         printf("4. Modyfikuj bohaterów \n"); 
         printf("5. Usuń bohatera\n");
+        printf("6. Ranking bohaterów\n");
         printf("0. Wyjscie\n");
         printf("Twoj wybor: ");
         scanf("%d", &wybor);
@@ -299,13 +339,17 @@ int main()
                 wyszukaj_bohaterow(HEAD);
                 break;
             case 4:
-                modyfikuj_boahtera(HEAD);
+                modyfikuj_bohatera(HEAD);
                 break;
             case 5:
                 usun_bohatera(&HEAD); 
             break;
+            case 6:
+            
+            break;
             case 0:
                 zapisz_baze(HEAD); 
+                zwolnij_pamiec(HEAD);
                 printf("Narazie:D\n");
                 break;
             default:
