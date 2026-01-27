@@ -1,26 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-typedef enum{czlowiek, elf, krasnolud, ork, golem, zwierzoludz} Rasa;
-typedef enum{wojownik, mag, kaplan, lowca, druid, zlodziej, tank, paladyn} Klasa;
-typedef enum{aktywny, na_misji, ranny, zaginiony, zawieszony} Status;
-typedef struct Bohater {
-    char Unikalneimie[100];
-    Rasa rasa;
-    Klasa klasa;
-    int doswiadczenie;
-    int reputacja;
-    Status status;
-    struct Bohater *nastepny_bohater;
-} Bohater;
+#include "dane.h"
 const char* nazwarasy[] = {"Czlowiek", "Elf", "Krasnolud", "ork", "Golem", "Zwierzoludz"};
 const char* nazwaklasy[] = {"Wojownik", "Mag", "Kaplan", "Lowca", "Druid", "Zlodziej", "Tank", "Paladyn"};
 const char* obecnystatus[] = {"Aktywny", "Na misji", "Ranny", "Zaginiony", "Zawieszony"};
 Bohater* stworz_bohatera() {
-
     Bohater *nowy = (Bohater*)malloc(sizeof(Bohater));
-
     if (nowy == NULL) {
         printf("Blad alokacji pamieci!\n");
         exit(1);
@@ -55,25 +38,24 @@ Bohater* stworz_bohatera() {
     scanf("%d", &nowy->reputacja);
 
     nowy->status = aktywny; 
-
     nowy->nastepny_bohater = NULL;
 
     printf("Bohater utworzony pomyslnie!\n");
     return nowy;
 }
+
 void dodaj_bohatera(Bohater **HEAD, Bohater *nowy) {
     nowy->nastepny_bohater = *HEAD;
     *HEAD = nowy;
 }
 
-void wyswietl_liste(Bohater *glowa) {
-    if (glowa == NULL) {
+void wyswietl_liste(Bohater *HEAD) {
+    if (HEAD == NULL) {
         printf("\nRejestr gildii jest pusty.\n");
         return;
     }
-
     printf("REJESTR\n");
-    Bohater *obecny = glowa; 
+    Bohater *obecny = HEAD; 
     int licznik = 1;
     while (obecny != NULL) {
         printf("Nr %d: %s\n", licznik, obecny->Unikalneimie); 
@@ -91,7 +73,6 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
         printf("Lista jest pusta, nie ma kogo szukac.\n");
         return;
     }
-
     int opcja;
     printf("WYSZUKIWANIE\n");
     printf("1. Szukaj po fragmencie imienia\n");
@@ -108,8 +89,8 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
         int znaleziono = 0;
         while (obecny != NULL) {
             if (strstr(obecny->Unikalneimie, szukane) != NULL) {
-                printf(" -> Znaleziono: %s (Klasa: %s, Poziom: %d ,Reputacja: %d)\n", 
-                       obecny->Unikalneimie, nazwaklasy[obecny->klasa], obecny->doswiadczenie, obecny -> reputacja);
+                printf(" -> Znaleziono: %s (Klasa: %s, Poziom: %d, Reputacja: %d)\n", 
+                       obecny->Unikalneimie, nazwaklasy[obecny->klasa], obecny->doswiadczenie, obecny->reputacja);
                 znaleziono = 1;
             }
             obecny = obecny->nastepny_bohater;
@@ -122,11 +103,9 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
         for(int i = 0; i < 8; i++) printf("%d. %s\n", i, nazwaklasy[i]);
         printf("Podaj numer: ");
         scanf("%d", &szukana_klasa);
-
         printf("\nWyniki dla klasy %s:\n", nazwaklasy[szukana_klasa]);
         Bohater *obecny = HEAD;
         int znaleziono = 0;
-
         while (obecny != NULL) {
             if (obecny->klasa == (Klasa)szukana_klasa) {
                  printf(" -> %s (Rasa: %s, Reputacja: %d)\n", 
@@ -135,13 +114,14 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
             }
             obecny = obecny->nastepny_bohater;
         }
-        if (znaleziono == 0) printf("[INFO] Brak bohaterow tej klasy.\n");
+        if (znaleziono == 0) printf("Brak bohaterow tej klasy.\n");
     } else {
         printf("Nieznana opcja wyszukiwania.\n");
     }
 }
-void usun_bohatera(Bohater **glowa) {
-    if (*glowa == NULL) {
+
+void usun_bohatera(Bohater **HEAD) {
+    if (*HEAD == NULL) {
         printf("\n[BLAD] Rejestr jest pusty.\n");
         return;
     }
@@ -149,7 +129,7 @@ void usun_bohatera(Bohater **glowa) {
     printf("USUWANIE BOHATERA\n");
     printf("Podaj dokladne imie bohatera do zwolnienia: ");
     scanf(" %[^\n]", imie_do_usuniecia);
-    Bohater *obecny = *glowa;
+    Bohater *obecny = *HEAD;
     Bohater *poprzedni = NULL;
     while (obecny != NULL) {
         if (strcmp(obecny->Unikalneimie, imie_do_usuniecia) == 0) {
@@ -159,9 +139,8 @@ void usun_bohatera(Bohater **glowa) {
                 return;
             }
             if (poprzedni == NULL) {
-                *glowa = obecny->nastepny_bohater; 
-            } 
-            else {
+                *HEAD = obecny->nastepny_bohater; 
+            } else {
                 poprzedni->nastepny_bohater = obecny->nastepny_bohater; 
             }
             free(obecny); 
@@ -171,20 +150,19 @@ void usun_bohatera(Bohater **glowa) {
         poprzedni = obecny;
         obecny = obecny->nastepny_bohater;
     }
-
     printf("Nie znaleziono bohatera o imieniu '%s'.\n", imie_do_usuniecia);
 }
-void modyfikuj_bohatera(Bohater *glowa) {
-    if (glowa == NULL) {
+
+void modyfikuj_bohatera(Bohater *HEAD) {
+    if (HEAD == NULL) {
         printf("Lista jest pusta.\n");
         return;
     }
-
     char szukane_imie[100];
     printf("EDYCJA DANYCH BOHATERA\n");
     printf("Podaj imie bohatera do edycji: ");
     scanf(" %[^\n]", szukane_imie);
-    Bohater *obecny = glowa;
+    Bohater *obecny = HEAD;
     while (obecny != NULL) {
         if (strcmp(obecny->Unikalneimie, szukane_imie) == 0) {
             printf("Edytujesz bohatera: %s (Obecny status: %s)\n", 
@@ -206,7 +184,6 @@ void modyfikuj_bohatera(Bohater *glowa) {
                     int nowy_status;
                     printf("Wybierz nowy status: ");
                     scanf("%d", &nowy_status);
-                    
                     if (nowy_status >= 0 && nowy_status <= 4) {
                         obecny->status = (Status)nowy_status;
                         printf("Status zmieniony na: %s\n", obecnystatus[nowy_status]);
@@ -247,15 +224,14 @@ void modyfikuj_bohatera(Bohater *glowa) {
     }
     printf("Nie znaleziono bohatera o imieniu '%s'.\n", szukane_imie);
 }
-void zapisz_baze(Bohater *glowa) {
-    FILE *plik = fopen("baza_gildii.txt", "w");
 
+void zapisz_baze(Bohater *HEAD) {
+    FILE *plik = fopen("baza_gildii.txt", "w");
     if (plik == NULL) {
         printf("Blad otwarcia pliku do zapisu!\n");
         return;
     }
-
-    Bohater *obecny = glowa;
+    Bohater *obecny = HEAD;
     while (obecny != NULL) {
         fprintf(plik, "%s\n", obecny->Unikalneimie);
         fprintf(plik, "%d\n", obecny->rasa);
@@ -263,15 +239,14 @@ void zapisz_baze(Bohater *glowa) {
         fprintf(plik, "%d\n", obecny->doswiadczenie);
         fprintf(plik, "%d\n", obecny->reputacja);
         fprintf(plik, "%d\n", obecny->status);
-        
         obecny = obecny->nastepny_bohater;
     }
     fclose(plik);
     printf("Stan gildii zostal zapisany w pliku 'baza_gildii.txt'.\n");
 }
-void wczytaj_baze(Bohater **glowa) {
+
+void wczytaj_baze(Bohater **HEAD) {
     FILE *plik = fopen("baza_gildii.txt", "r");
-    
     if (plik == NULL) {
         printf("Brak pliku zapisu. Tworze nowa, czysta baze.\n");
         return;
@@ -292,69 +267,60 @@ void wczytaj_baze(Bohater **glowa) {
         nowy->reputacja = tempRep;
         nowy->status = (Status)tempStatus;
         nowy->nastepny_bohater = NULL;
-        dodaj_bohatera(glowa, nowy);
+        dodaj_bohatera(HEAD, nowy);
     }
-
     fclose(plik);
-    printf("[SYSTEM] Wczytano dane z pliku.\n");
+    printf("Wczytano dane z pliku.\n");
 }
-void zwolnij_pamiec(Bohater *glowa) {
+
+void zwolnij_pamiec(Bohater *HEAD) {
     Bohater *temp;
-    while (glowa != NULL) {
-        temp = glowa;
-        glowa = glowa->nastepny_bohater;
+    while (HEAD != NULL) {
+        temp = HEAD;
+        HEAD = HEAD->nastepny_bohater;
         free(temp);
     }
     printf("Pamiec zostala wyczyszczona.\n");
 }
-int main()
-{
-    Bohater *HEAD = NULL;
-    wczytaj_baze(&HEAD);
-    int wybor;
-    
-    do{
-        printf("\n---Witamy w gildi Poszukiwaczy Przygód---\n");
-        printf("1. Zarejestruj się\n");
-        printf("2. Wyświetl dane bohatera\n");
-        printf("3. Wyszukaj bohatera\n");
-        printf("4. Modyfikuj bohaterów \n"); 
-        printf("5. Usuń bohatera\n");
-        printf("6. Ranking bohaterów\n");
-        printf("0. Wyjscie\n");
-        printf("Twoj wybor: ");
-        scanf("%d", &wybor);
-        switch(wybor) {
-            case 1: {
-                Bohater *nowy = stworz_bohatera();
-                if (nowy != NULL) {
-                    dodaj_bohatera(&HEAD, nowy); 
-                }
-                break;
+
+void sortuj_ranking(Bohater *HEAD) {
+    if (HEAD == NULL || HEAD->nastepny_bohater == NULL) {
+        printf("Za malo bohaterow do stworzenia rankingu.\n");
+        return;
+    }
+    int zamiana;
+    Bohater *ptr1;
+    Bohater *lptr = NULL;
+    do {
+        zamiana = 0;
+        ptr1 = HEAD;
+        while (ptr1->nastepny_bohater != lptr) {
+            if (ptr1->reputacja < ptr1->nastepny_bohater->reputacja) { 
+                char tempImie[100];
+                strcpy(tempImie, ptr1->Unikalneimie);
+                strcpy(ptr1->Unikalneimie, ptr1->nastepny_bohater->Unikalneimie);
+                strcpy(ptr1->nastepny_bohater->Unikalneimie, tempImie);
+                Rasa tempRasa = ptr1->rasa;
+                ptr1->rasa = ptr1->nastepny_bohater->rasa;
+                ptr1->nastepny_bohater->rasa = tempRasa;
+                Klasa tempKlasa = ptr1->klasa;
+                ptr1->klasa = ptr1->nastepny_bohater->klasa;
+                ptr1->nastepny_bohater->klasa = tempKlasa;
+                int tempExp = ptr1->doswiadczenie;
+                ptr1->doswiadczenie = ptr1->nastepny_bohater->doswiadczenie;
+                ptr1->nastepny_bohater->doswiadczenie = tempExp;
+                int tempRep = ptr1->reputacja;
+                ptr1->reputacja = ptr1->nastepny_bohater->reputacja;
+                ptr1->nastepny_bohater->reputacja = tempRep;
+                Status tempStatus = ptr1->status;
+                ptr1->status = ptr1->nastepny_bohater->status;
+                ptr1->nastepny_bohater->status = tempStatus;
+                zamiana = 1;
             }
-            case 2:
-                wyswietl_liste(HEAD);
-                break;
-            case 3:
-                wyszukaj_bohaterow(HEAD);
-                break;
-            case 4:
-                modyfikuj_bohatera(HEAD);
-                break;
-            case 5:
-                usun_bohatera(&HEAD); 
-            break;
-            case 6:
-            
-            break;
-            case 0:
-                zapisz_baze(HEAD); 
-                zwolnij_pamiec(HEAD);
-                printf("Narazie:D\n");
-                break;
-            default:
-                printf("Nieznana opcja!\n");
+            ptr1 = ptr1->nastepny_bohater;
         }
-    } while(wybor !=0);
-    return 0;
+        lptr = ptr1;
+    } while (zamiana);
+    printf("Posortowano bohaterow wedlug reputacji.\n");
+    printf("Wybierz opcje 'Wyswietl', aby zobaczyc ranking.\n");
 }
