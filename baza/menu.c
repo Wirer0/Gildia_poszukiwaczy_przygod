@@ -9,7 +9,7 @@ int main()
     do{
         printf("\n---Witamy w gildi Poszukiwaczy Przygód---\n");
         printf("1. Zarejestruj się\n");
-        printf("2. Wyświetl dane bohatera\n");
+        printf("2. Wyświetl dane bohaterów\n");
         printf("3. Wyszukaj bohatera\n");
         printf("4. Modyfikuj bohaterów \n"); 
         printf("5. Usuń bohatera\n");

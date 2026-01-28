@@ -8,11 +8,11 @@ Bohater* stworz_bohatera() {
         printf("Blad alokacji pamieci!\n");
         exit(1);
     }
-    printf("\nPodaj unikalne imie bohatera: ");
+    printf("Podaj unikalne imie bohatera: ");
     scanf(" %[^\n]", nowy->Unikalneimie); 
 
     int i, wybor_rasy;
-    printf("\nDostepne rasy:\n");
+    printf("Dostepne rasy:\n");
     for(i = 0; i < 6; i++) {
         printf("%d. %s\n", i, nazwarasy[i]);
     }
@@ -22,7 +22,7 @@ Bohater* stworz_bohatera() {
     nowy->rasa = (Rasa)wybor_rasy;
 
     int wybor_klasy;
-    printf("\nDostepne klasy:\n");
+    printf("Dostepne klasy:\n");
     for(i = 0; i < 8; i++) {
         printf("%d. %s\n", i, nazwaklasy[i]);
     }
@@ -51,7 +51,7 @@ void dodaj_bohatera(Bohater **HEAD, Bohater *nowy) {
 
 void wyswietl_liste(Bohater *HEAD) {
     if (HEAD == NULL) {
-        printf("\nRejestr gildii jest pusty.\n");
+        printf("Rejestr gildii jest pusty.\n");
         return;
     }
     printf("REJESTR\n");
@@ -84,7 +84,7 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
         char szukane[100];
         printf("Wpisz fragment imienia: ");
         scanf(" %[^\n]", szukane);
-        printf("\nWyniki wyszukiwania dla '%s':\n", szukane);
+        printf("Wyniki wyszukiwania dla '%s':\n", szukane);
         Bohater *obecny = HEAD;
         int znaleziono = 0;
         while (obecny != NULL) {
@@ -99,11 +99,11 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
 
     } else if (opcja == 2) {
         int szukana_klasa;
-        printf("\nJaka klase wyswietlic?\n");
+        printf("Jaka klase wyswietlic?\n");
         for(int i = 0; i < 8; i++) printf("%d. %s\n", i, nazwaklasy[i]);
         printf("Podaj numer: ");
         scanf("%d", &szukana_klasa);
-        printf("\nWyniki dla klasy %s:\n", nazwaklasy[szukana_klasa]);
+        printf("Wyniki dla klasy %s:\n", nazwaklasy[szukana_klasa]);
         Bohater *obecny = HEAD;
         int znaleziono = 0;
         while (obecny != NULL) {
@@ -122,7 +122,7 @@ void wyszukaj_bohaterow(Bohater *HEAD) {
 
 void usun_bohatera(Bohater **HEAD) {
     if (*HEAD == NULL) {
-        printf("\n[BLAD] Rejestr jest pusty.\n");
+        printf("Rejestr jest pusty.\n");
         return;
     }
     char imie_do_usuniecia[100];
@@ -144,7 +144,7 @@ void usun_bohatera(Bohater **HEAD) {
                 poprzedni->nastepny_bohater = obecny->nastepny_bohater; 
             }
             free(obecny); 
-            printf("\n Bohater '%s' zostal usuniety z rejestru.\n", imie_do_usuniecia);
+            printf("Bohater '%s' zostal usuniety z rejestru.\n", imie_do_usuniecia);
             return;
         }
         poprzedni = obecny;
